@@ -8,6 +8,7 @@ import Box from "./ListBox";
 import MovieList from "./MovieList";
 import WatchedSummary from "./WatchedSummary";
 import WatchedMovieList from "./WatchMovieList";
+import SelectedMovie from "./SelectedMovie";
 
 const tempMovieData = [
   {
@@ -60,12 +61,22 @@ const KEY = process.env.REACT_APP_OMDB_KEY;
 console.log(KEY);
 
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [query, setQuery] = useState("interstellar");
+
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
-  const [query, setQuery] = useState("interstellar");
+  function handleSelectMovie(id) {
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+    // Alternativ: id === selectedId ? setSelectedId(null) : setSelectedId(id);
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
 
   // useEffect( () => {
   //   async function myFetch() {
@@ -86,7 +97,7 @@ export default function App() {
     async function fetchMovie() {
       try {
         setIsLoading(true);
-        setError("");
+        setError(""); //reset error
         const response = await fetch(
           `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
         );
@@ -124,12 +135,23 @@ export default function App() {
       <Main>
         <Box>
           {isLoading && <p>Es lädt gerade</p>}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorMessage message={error}></ErrorMessage>}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedMovieList watched={watched} />
+          {selectedId ? (
+            <SelectedMovie
+              selectedId={selectedId}
+              onCloseMovie={handleCloseMovie}
+            />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMovieList watched={watched} />
+            </>
+          )}
         </Box>
       </Main>
     </>
