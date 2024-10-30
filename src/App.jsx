@@ -78,6 +78,14 @@ export default function App() {
     setSelectedId(null);
   }
 
+  function handleAddWatch(movie) {
+    setWatched((watched) => [...watched, movie]);
+  }
+
+  function handleDeleteWatched(id) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
   // useEffect( () => {
   //   async function myFetch() {
   //     const response = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=interstellar`);
@@ -145,11 +153,16 @@ export default function App() {
             <SelectedMovie
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
+              onAddWatched={handleAddWatch}
+              watched={watched}
             />
           ) : (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedMovieList watched={watched} />
+              <WatchedMovieList
+                watched={watched}
+                onDeleteWatched={handleDeleteWatched}
+              />
             </>
           )}
         </Box>
